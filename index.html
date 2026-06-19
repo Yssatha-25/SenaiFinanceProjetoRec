@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Senai Finance</title>
+</head>
+
+<body>
+    <label for="valorInicial">Valor incial (R$)</label>
+    <input type="number" id="valorInicial" name="valorInicial"><br>
+
+    <label for="aporteMensal">Aporte mensal (R$)</label>
+    <input type="number" id="aporteMensal" name="aporteMensal"><br>
+
+    <label for="taxaJuros">Taxa de juros mensal (%)</label>
+    <input type="number" id="taxaJuros" name="taxaJuros"><br>
+
+    <label for="periodo">Período (meses)</label>
+    <input type="number" id="periodo" name="periodo"><br>
+    <button onClick="onSubmit()">Calcular</button>
+
+    <div id="resultado"></div>
+
+    <!-- <div id="historico" class="hidden"></div> -->
+</body>
+
+
+<script>
+    const divResultado = document.getElementById("resultado")
+
+    function onSubmit() {
+        console.log('submit ok')
+        
+        let valorInicial = document.getElementById("valorInicial").value
+        let aporteMensal = document.getElementById("aporteMensal").value
+        let taxaJuros = document.getElementById("taxaJuros").value
+        let periodo = document.getElementById("periodo").value
+
+        validacaoValores(valorInicial, aporteMensal, taxaJuros, periodo)
+        
+        if(!validacaoValores){
+            divResultado.innerHTML = `
+            <p>"Todos os campos devems ser preeenchidos."</p>
+            `
+            return
+        }
+    
+        calcular(valorInicial, aporteMensal, taxaJuros, periodo)
+
+        console.log('subimit finalizado')
+    }
+
+    function validacaoValores(valorInicial, aporteMensal, taxaJuros, periodo){
+        if(valorInicial=="" || aporteMensal=="" || taxaJuros=="" || periodo==""){
+            return(false)
+        }
+    }
+
+    function calcular(valorInicial, aporteMensal, taxaJuros, periodo) {
+        console.log('valor inicial:' + valorInicial)
+        console.log('aporteMensal:' + aporteMensal)
+        console.log('taxaJuros:' + taxaJuros)
+        console.log('periodo:' + periodo)
+
+        divResultado.innerHTML = ""
+
+        let total = valorInicial * ((1 + (taxaJuros/100)) ** periodo)
+        console.log('valor total:' + total.toFixed(2))
+
+        divResultado.innerHTML = `
+        <div id="caixinhaResultado">
+            <h4>Resultado:</h4>  
+            <p>R$ ${total.toFixed(2)}</p>
+        </div>
+        `
+    }
+
+</script>
+
+</html>
