@@ -9,27 +9,45 @@
 </head>
 
 <body>
-    <label for="valorInicial">Valor incial (R$)</label>
-    <input type="number" id="valorInicial" name="valorInicial"><br>
+    <h1>Calculadora de Juros Compostos</h1>
 
+    <label for="valorInicial">Valor incial (R$)</label>
+    <input type="number" id="valorInicial" name="valorInicial" placeholder="00,00" min="0"><br>
+
+    <br>
+    
     <label for="aporteMensal">Aporte mensal (R$)</label>
-    <input type="number" id="aporteMensal" name="aporteMensal"><br>
+    <input type="number" id="aporteMensal" name="aporteMensal" placeholder="00,00" min="0"><br>
+
+    <br>
 
     <label for="taxaJuros">Taxa de juros mensal (%)</label>
-    <input type="number" id="taxaJuros" name="taxaJuros"><br>
+    <input type="number" id="taxaJuros" name="taxaJuros" placeholder="00,00" min="0"><br>
+
+    <br>
 
     <label for="periodo">Período (meses)</label>
-    <input type="number" id="periodo" name="periodo"><br>
-    <button onClick="onSubmit()">Calcular</button>
+    <input type="number" id="periodo" name="periodo" placeholder="0" min="0"><br>
+    
+    <br>
+
+    <button onClick="onSubmit()" id="botaoCalcular">Calcular</button>
+
+    <br><br>
 
     <div id="resultado"></div>
 
-    <!-- <div id="historico" class="hidden"></div> -->
+    <div id="historico" class="hidden">
+        <h4>Histórico de Cálculos</h4>
+        <button onClick="limparHistorico()">Limpar histórico</button>
+        <br><br>
+    </div>
 </body>
 
 
 <script>
     const divResultado = document.getElementById("resultado")
+    const divHistorico = document.getElementById("historico")
 
     function onSubmit() {
         console.log('submit ok')
@@ -38,25 +56,29 @@
         let aporteMensal = document.getElementById("aporteMensal").value
         let taxaJuros = document.getElementById("taxaJuros").value
         let periodo = document.getElementById("periodo").value
-
-        validacaoValores(valorInicial, aporteMensal, taxaJuros, periodo)
         
-        if(!validacaoValores){
+        if(!validacaoValores(valorInicial, aporteMensal, taxaJuros, periodo)){
             divResultado.innerHTML = `
-            <p>"Todos os campos devems ser preeenchidos."</p>
+            <p>"Todos os campos devems ser preeenchidos (com valores maiores ou iguais a zero)."</p>
             `
-            return
         }
-    
-        calcular(valorInicial, aporteMensal, taxaJuros, periodo)
+        else{
+            valorInicial = parseFloat(valorInicial)
+            aporteMensal = parseFloat(aporteMensal)
+            taxaJuros = parseFloat(taxaJuros)
+            periodo = parseInt(periodo)
+            calcular(valorInicial, aporteMensal, taxaJuros, periodo)
+        }
 
         console.log('subimit finalizado')
     }
 
     function validacaoValores(valorInicial, aporteMensal, taxaJuros, periodo){
-        if(valorInicial=="" || aporteMensal=="" || taxaJuros=="" || periodo==""){
+        if(valorInicial=="" || aporteMensal=="" || taxaJuros=="" || periodo=="" || valorInicial<0 || aporteMensal<0 || taxaJuros<0 || periodo<0
+        ){
             return(false)
         }
+        return(true)
     }
 
     function calcular(valorInicial, aporteMensal, taxaJuros, periodo) {
@@ -73,11 +95,152 @@
         divResultado.innerHTML = `
         <div id="caixinhaResultado">
             <h4>Resultado:</h4>  
-            <p>R$ ${total.toFixed(2)}</p>
+            <p>R$ ${total.toFixed(2).replace('.', ',')}</p>
         </div>
         `
+        adicionarHistorico(valorInicial, aporteMensal, taxaJuros, periodo, total)
+    }
+
+    function adicionarHistorico (valorInicial, aporteMensal, taxaJuros, periodo, total){
+        const divHistorico = document.getElementById("historico")
+        divHistorico.classList.remove("hidden")
+
+        const novaEntrada = document.createElement("div")
+        novaEntrada.classList.add("entradaHistorico")
+        novaEntrada.innerHTML = `
+            <p>Valor inicial: R$ ${valorInicial.toFixed(2).replace('.', ',')}</p>
+            <p>Aporte mensal: R$ ${aporteMensal.toFixed(2).replace('.', ',')}</p>
+            <p>Taxa de juros mensal: ${taxaJuros.toFixed(2)}%</p>
+            <p>Período: ${periodo} meses</p>
+            <p>Total acumulado: R$ ${total.toFixed(2).replace('.', ',')}</p>
+            <button onClick="removerHistorico(this)">Remover</button>
+        `
+        divHistorico.appendChild(novaEntrada)
+    }
+
+    function removerHistorico(button) {
+        const entrada = button.parentElement
+        const divHistorico = document.getElementById("historico")
+        divHistorico.removeChild(entrada)
+            if (divHistorico.children.length === 1) {
+                divHistorico.classList.add("hidden")
+            }
+    }
+
+    function limparHistorico() {
+        divHistorico.innerHTML = `
+        <h4>Histórico de Cálculos</h4>
+        <button onClick="limparHistorico()">Limpar histórico</button>
+        `
+        divHistorico.classList.add("hidden")
     }
 
 </script>
 
+<style>
+.hidden {
+        display: none;
+}
+
+*{
+    font-family: Arial, sans-serif;
+    font-size: 2vw;
+}
+
+h1{
+    justify-self: center;
+    font-size: 3vw;
+    color: #04fa2d;
+    text-shadow: 0 0 2px #04fa2d, 
+               0 0 2px #04fa2d, 
+               0 0 2px #04fa2d, 
+               0 0 2px #04fa2d;;
+}
+
+input{
+    background-color: #fdfdfd34;
+    border: none;
+    outline: none;
+    width: 60vw;
+    height: 6vh;
+    border-radius: 6px;
+    font-size: 2vw;
+}
+input::placeholder{
+    color: #002004;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input:focus{
+    border: 2px solid #bbfdc6;
+    background-color: #bbfdc6af;
+}
+
+body{
+    background-color: #002004;
+    color: #bbfdc6;
+}
+
+#caixinhaResultado {
+    border: none;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px #66996e;
+    padding: 10px;
+    margin-top: 15px;
+    background-color: #012e08;
+}
+
+#historico {
+    margin-top: 20px;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    background-color: #012e08;
+    box-shadow: 0 2px 4px #66996e;
+}
+
+#historico .entradaHistorico {
+    border: none;
+    border-radius: 4px;
+    padding: 8px;
+    margin: 8px 0;
+    background-color: #013d0b;
+}
+
+#historico button,
+#caixinhaResultado button {
+    border: none;
+    border-radius: 4px;
+    background-color: #04fa2d;
+    color: #002004;
+    cursor: pointer;
+    width: 10vw;
+    height: 4vh;
+    font-size: 2vh;
+}
+
+#botaoCalcular {
+    background-color: #04fa2d;
+    border: none;
+    border-radius: 6px;
+    width: 50vw;
+    height: 6vh;
+    font-size: 5vh;
+    cursor: pointer;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+
+}
+
+#historico button:hover,
+#caixinhaResultado button:hover,
+#botaoCalcular:hover{
+    background-color: #43f861;
+    box-shadow: 0 0 10px #04fa2d, inset 0 0 10px #04fa2d;
+}
+</style>
 </html>
